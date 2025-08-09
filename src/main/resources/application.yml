@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://host.docker.internal:5432/db_skills_rock?sslmode=disable
+    username: admin
+    password: admin
+    hikari:
+      maximum-pool-size: 5
+      ssl: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: skills_rock_schema
+        format_sql: true
+    database: postgresql
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
