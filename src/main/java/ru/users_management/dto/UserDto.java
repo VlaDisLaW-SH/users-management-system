@@ -1,10 +1,10 @@
 package ru.users_management.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.users_management.enumeration.RoleName;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,7 +34,8 @@ public class UserDto {
 
     @Schema(
             description = "Название роли пользователя в системе",
-            example = "USER"
+            example = "USER",
+            implementation = RoleName.class
     )
     private String roleName;
 

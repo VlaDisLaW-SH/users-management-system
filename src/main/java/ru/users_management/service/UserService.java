@@ -1,13 +1,17 @@
 package ru.users_management.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
 import ru.users_management.dto.UserCreateDto;
 import ru.users_management.dto.UserDto;
+import ru.users_management.enumeration.RoleName;
 import ru.users_management.exception.DuplicateException;
+import ru.users_management.exception.InvalidPhoneNumberFormatException;
 import ru.users_management.exception.ResourceNotFoundException;
 import ru.users_management.mapper.UserMapper;
 import ru.users_management.repository.UserRepository;
+import ru.users_management.util.PhoneUtils;
 
 import java.util.UUID;
 
@@ -26,9 +30,14 @@ public class UserService {
     }
 
     public UserDto create(UserCreateDto userDto) {
-        if (userRepository.existsByPhoneNumber(userDto.getPhoneNumber())) {
-            throw new DuplicateException("Номер телефона уже используется");
+        try {
+            var normalizedPhone = PhoneUtils.normalizePhoneNumber(userDto.getPhoneNumber());
+            userDto.setPhoneNumber(normalizedPhone);
+        } catch (IllegalArgumentException ex) {
+            throw new InvalidPhoneNumberFormatException(ex.getMessage());
         }
+        checkDuplicatePhoneNumber(userDto.getPhoneNumber());
+        validRoleName(userDto.getRoleName());
         var user = userMapper.map(userDto);
         userRepository.save(user);
         return userMapper.map(user);
@@ -38,5 +47,17 @@ public class UserService {
         var user = userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
         userRepository.delete(user);
+    }
+
+    private void checkDuplicatePhoneNumber(String phoneNumber) {
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new DuplicateException("Номер телефона уже используется");
+        }
+    }
+
+    private void validRoleName(final String roleName) {
+        if (!EnumUtils.isValidEnumIgnoreCase(RoleName.class, roleName)) {
+            throw new IllegalArgumentException("Некорректное название роли: " + roleName);
+        }
     }
 }

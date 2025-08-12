@@ -2,6 +2,7 @@ package ru.users_management.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class User {
      * Номер телефона
      */
     @NotBlank
+    @Size(min = 10, max = 20)
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
