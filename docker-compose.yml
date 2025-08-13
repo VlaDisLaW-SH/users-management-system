@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  liquibase:
+    image: liquibase/liquibase:4.31
+    container_name: liquibase-migrations
+    depends_on:
+      - postgres
+    volumes:
+      - ./src/main/resources/db/changelog:/liquibase/changelog
+    command: >
+      --url=jdbc:postgresql://postgres:5432/db_skills_rock?currentSchema=skills_rock_schema
+      --changeLogFile=changelog/changelog-master.xml
+      --username=admin
+      --password=admin
+      update
+    restart: "no"
+
+  app:
+    build: .
+    container_name: springboot-app
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_skills_rock?currentSchema=skills_rock_schema
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_LIQUIBASE_ENABLED: false
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  postgres_data:
