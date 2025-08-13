@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.users_management.dto.UserCreateDto;
 import ru.users_management.dto.UserDto;
+import ru.users_management.dto.UserUpdateDto;
 import ru.users_management.exception.record.ErrorResponse;
 import ru.users_management.service.UserService;
 
@@ -76,6 +77,36 @@ public class UsersController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(user);
+    }
+
+    @PatchMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "Частично обновить данные пользователя",
+            description = "Обновляет указанные поля пользователя по его ID"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Данные пользователя успешно обновлены",
+            content = @Content(schema = @Schema(implementation = UserDto.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Некорректные входные данные",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Пользователь не найден",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
+    public ResponseEntity<UserDto> updatePartial(
+            @PathVariable UUID id,
+            @Valid @RequestBody UserUpdateDto userData
+    ) {
+        var user = userService.update(userData , id);
+        return ResponseEntity
+                .ok(user);
     }
 
     @DeleteMapping(path = "/{id}")
