@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.users_management.exception.DuplicateException;
+import ru.users_management.exception.FieldsValidationException;
 import ru.users_management.exception.InvalidPhoneNumberFormatException;
 import ru.users_management.exception.ResourceNotFoundException;
 import ru.users_management.exception.record.ErrorResponse;
@@ -64,6 +65,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidPhoneNumberFormatException.class)
     public ResponseEntity<ErrorResponse> handleInvalidPhoneNumberFormatException(InvalidPhoneNumberFormatException ex) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FieldsValidationException.class)
+    public ResponseEntity<ErrorResponse> handleFieldsValidationException(FieldsValidationException ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
