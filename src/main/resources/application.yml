@@ -16,6 +16,10 @@ spring:
         default_schema: skills_rock_schema
         format_sql: true
     database: postgresql
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m
 
 logging:
   level:

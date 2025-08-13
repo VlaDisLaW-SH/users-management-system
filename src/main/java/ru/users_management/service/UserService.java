@@ -2,6 +2,9 @@ package ru.users_management.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import ru.users_management.dto.UserCreateDto;
 import ru.users_management.dto.UserDto;
@@ -26,6 +29,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
+    @Cacheable(value = "users", key = "#uuid")
     public UserDto findByUuid(UUID uuid) {
         var user = userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
@@ -41,6 +45,7 @@ public class UserService {
         return userMapper.map(user);
     }
 
+    @CachePut(value = "users", key = "#id")
     public UserDto update(UserUpdateDto userDto, UUID id) {
         var user = userRepository.findByUuid(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
@@ -56,6 +61,7 @@ public class UserService {
         return userMapper.map(user);
     }
 
+    @CacheEvict(value = "users", key = "#uuid")
     public void delete(UUID uuid) {
         var user = userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
